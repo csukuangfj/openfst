@@ -224,6 +224,10 @@ class STTableReader {
     return new STTableReader<T, Reader>(std::move(streams));
   }
 
+  static STTableReader<T, Reader> *Open(std::vector<std::unique_ptr<std::istream>> streams) {
+    return new STTableReader<T, Reader>(std::move(streams));
+  }
+
   static STTableReader<T, Reader> *Open(const std::vector<string> &filenames) {
     return new STTableReader<T, Reader>(filenames);
   }

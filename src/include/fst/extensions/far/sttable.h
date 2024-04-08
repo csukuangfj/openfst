@@ -147,6 +147,63 @@ class STTableReader {
     MakeHeap();
   }
 
+  explicit STTableReader(std::vector<std::unique_ptr<std::istream>> streams)
+      : error_(false) {
+    sources_.resize(streams.size());
+    compare_.reset(new Compare(&keys_));
+    keys_.resize(streams.size());
+
+    streams_.reserve(streams.size());
+    for (auto& s : streams) {
+      streams_.push_back(s.release());
+    }
+
+    positions_.resize(streams.size());
+    for (size_t i = 0; i < streams.size(); ++i) {
+      if (streams_[i]->fail()) {
+        FSTERROR() << "STTableReader::STTableReader: Error reading file: "
+                 << i;
+        error_ = true;
+        return;
+      }
+      int32 magic_number = 0;
+      ReadType(*streams_[i], &magic_number);
+      int32 file_version = 0;
+      ReadType(*streams_[i], &file_version);
+      if (magic_number != kSTTableMagicNumber) {
+        FSTERROR() << "STTableReader::STTableReader: Wrong file type: "
+                   << i;
+        error_ = true;
+        return;
+      }
+      if (file_version != kSTTableFileVersion) {
+        FSTERROR() << "STTableReader::STTableReader: Wrong file version: "
+                   << i;
+        error_ = true;
+        return;
+      }
+      int64 num_entries;
+      streams_[i]->seekg(-static_cast<int>(sizeof(int64)), std::ios_base::end);
+      ReadType(*streams_[i], &num_entries);
+      if (num_entries > 0) {
+        streams_[i]->seekg(-static_cast<int>(sizeof(int64)) * (num_entries + 1),
+                           std::ios_base::end);
+        positions_[i].resize(num_entries);
+        for (size_t j = 0; (j < num_entries) && (!streams_[i]->fail()); ++j) {
+          ReadType(*streams_[i], &(positions_[i][j]));
+        }
+        streams_[i]->seekg(positions_[i][0]);
+        if (streams_[i]->fail()) {
+          FSTERROR() << "STTableReader::STTableReader: Error reading file: "
+                     << i;
+          error_ = true;
+          return;
+        }
+      }
+    }
+    MakeHeap();
+  }
+
   ~STTableReader() {
     for (auto &stream : streams_) delete stream;
   }
@@ -159,6 +216,16 @@ class STTableReader {
     std::vector<string> filenames;
     filenames.push_back(filename);
     return new STTableReader<T, Reader>(filenames);
+  }
+
+  static STTableReader<T, Reader> *Open(std::unique_ptr<std::istream> stream) {
+    std::vector<std::unique_ptr<std::istream>> streams;
+    streams.push_back(std::move(stream));
+    return new STTableReader<T, Reader>(std::move(streams));
+  }
+
+  static STTableReader<T, Reader> *Open(std::vector<std::unique_ptr<std::istream>> streams) {
+    return new STTableReader<T, Reader>(std::move(streams));
   }
 
   static STTableReader<T, Reader> *Open(const std::vector<string> &filenames) {

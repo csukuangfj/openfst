@@ -108,6 +108,9 @@ class FarReader {
   // Sets current position to the beginning of the achive.
   static FarReader *Open(const string &filename);
 
+  static FarReader *Open(std::unique_ptr<std::istream> stream);
+  static FarReader *Open(std::vector<std::unique_ptr<std::istream>> streams);
+
   // Opens an existing FST archive in multiple files; returns null on error.
   // Sets current position to the beginning of the achive.
   static FarReader *Open(const std::vector<string> &filenames);
@@ -266,6 +269,18 @@ class STTableFarReader : public FarReader<A> {
 
   static STTableFarReader *Open(const string &filename) {
     auto *reader = STTableReader<Fst<Arc>, FstReader<Arc>>::Open(filename);
+    if (!reader || reader->Error()) return nullptr;
+    return new STTableFarReader(reader);
+  }
+
+  static STTableFarReader *Open(std::unique_ptr<std::istream> stream) {
+    auto *reader = STTableReader<Fst<Arc>, FstReader<Arc>>::Open(std::move(stream));
+    if (!reader || reader->Error()) return nullptr;
+    return new STTableFarReader(reader);
+  }
+
+  static STTableFarReader *Open(std::vector<std::unique_ptr<std::istream>> streams) {
+    auto *reader = STTableReader<Fst<Arc>, FstReader<Arc>>::Open(std::move(streams));
     if (!reader || reader->Error()) return nullptr;
     return new STTableFarReader(reader);
   }
@@ -444,6 +459,19 @@ class FstFarReader : public FarReader<A> {
   mutable std::unique_ptr<Fst<Arc>> fst_;
   mutable bool error_;
 };
+
+
+template <class Arc>
+FarReader<Arc> *FarReader<Arc>::Open(std::unique_ptr<std::istream> stream) {
+  // TODO(fangjun): Support other types
+    return STTableFarReader<Arc>::Open(std::move(stream));
+}
+
+template <class Arc>
+FarReader<Arc> *FarReader<Arc>::Open(std::vector<std::unique_ptr<std::istream>> streams) {
+  // TODO(fangjun): Support other types
+    return STTableFarReader<Arc>::Open(std::move(streams));
+}
 
 template <class Arc>
 FarReader<Arc> *FarReader<Arc>::Open(const string &filename) {

@@ -47,7 +47,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake -G Ninja -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
+          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build openfst for Windows x64
         shell: bash

@@ -30,6 +30,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: CMake version
+        shell: bash
+        run: |
+          cmake --version
+          cmake --help
+
       - name: Configure CMake
         shell: bash
         run: |

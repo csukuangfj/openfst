@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - master
+      - alpha
+      - preflight
 
   pull_request:
     branches:
       - master
+      - alpha
+      - preflight
 
   workflow_dispatch:
 
@@ -43,7 +47,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
+          cmake -G Ninja -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build openfst for Windows x64
         shell: bash

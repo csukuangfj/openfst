@@ -35,13 +35,13 @@ jobs:
           fetch-depth: 0
 
       - name: CMake version
-        shell: cmd
+        shell: bash
         run: |
           cmake --version
           cmake --help
 
       - name: Configure CMake
-        shell: cmd
+        shell: bash
         run: |
           cmake --version
 
@@ -50,7 +50,7 @@ jobs:
           cmake -G Ninja -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build openfst for Windows x64
-        shell: cmd
+        shell: bash
         run: |
           cd build
           cmake --build . --config Release -- -m:2

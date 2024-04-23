@@ -40,18 +40,23 @@ jobs:
           python-version: "3.8"
 
       - name: Install Python dependencies
-        shell: bash
+        shell: cmd
         run: |
           pip install ninja
 
-      - name: CMake version
+      - name: Show ninja help
         shell: bash
+        run: |
+          ninja --help || true
+
+      - name: CMake version
+        shell: cmd
         run: |
           cmake --version
           cmake --help
 
       - name: Configure CMake
-        shell: bash
+        shell: cmd
         run: |
           cmake --version
 
@@ -60,8 +65,8 @@ jobs:
           cmake -G Ninja -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build openfst for Windows x64
-        shell: bash
+        shell: cmd
         run: |
           cd build
-          cmake --build . --config Release -- -m:2
-          cmake --build . --config Release --target install -- -m:2
+          cmake --build . --config Release -- -j 6
+          cmake --build . --config Release --target install -- -j 6

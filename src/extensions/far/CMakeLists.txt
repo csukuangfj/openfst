@@ -7,10 +7,10 @@ add_library(fstfar
   ${HEADER_FILES}
 )
 target_link_libraries(fstfar fst)
-set_target_properties(fstfar PROPERTIES 
-    SOVERSION "7"
-    FOLDER far
-)
+# set_target_properties(fstfar PROPERTIES
+#     SOVERSION "7"
+#     FOLDER far
+# )
 
 install(TARGETS fstfar
   LIBRARY DESTINATION lib

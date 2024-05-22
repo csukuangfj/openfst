@@ -1,5 +1,5 @@
 file(GLOB HEADER_FILES ../include/fst/script/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 add_library(fstscript
   arciterator-class.cc
@@ -53,9 +53,9 @@ add_library(fstscript
 )
 target_link_libraries(fstscript PRIVATE fst)
 
-set_target_properties(fstscript PROPERTIES
-  SOVERSION "6"
-)
+# set_target_properties(fstscript PROPERTIES
+#   SOVERSION "6"
+# )
 install(TARGETS fstscript
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

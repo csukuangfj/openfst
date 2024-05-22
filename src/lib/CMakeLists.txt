@@ -13,9 +13,9 @@ add_library(fst
   weight.cc
   ${HEADER_FILES}
 )
-set_target_properties(fst PROPERTIES
-  SOVERSION "6"
-)
+# set_target_properties(fst PROPERTIES
+#   SOVERSION "6"
+# )
 install(TARGETS fst
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

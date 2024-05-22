@@ -1,5 +1,5 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/compress/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 add_library(fstcompressscript
   compress-script.cc
@@ -11,9 +11,9 @@ target_link_libraries(fstcompressscript
   fst
   ${ZLIBS}
 )
-set_target_properties(fstcompressscript PROPERTIES
-  SOVERSION "7"
-)
+# set_target_properties(fstcompressscript PROPERTIES
+#   SOVERSION "7"
+# )
 install(TARGETS fstcompressscript 
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

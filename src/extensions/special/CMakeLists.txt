@@ -1,5 +1,5 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/special/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 if(HAVE_BIN)
   add_executable(fstspecial-bin
@@ -30,10 +30,10 @@ add_library(fstspecial
   ${HEADER_FILES}
 )
 
-set_target_properties(fstspecial
-  PROPERTIES SOVERSION "7"
-  FOLDER special
-)
+# set_target_properties(fstspecial
+#   PROPERTIES SOVERSION "7"
+#   FOLDER special
+# )
 target_link_libraries(fstspecial
   fst
 )

@@ -1,5 +1,5 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/far/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 add_library(fstfar
   sttable.cc
@@ -27,10 +27,10 @@ if(HAVE_SCRIPT)
     strings.cc
   )
   target_link_libraries(fstfarscript fstfar fstscript fst)
-  set_target_properties(fstfarscript PROPERTIES 
-    SOVERSION "7"
-    FOLDER far
-  )
+  # set_target_properties(fstfarscript PROPERTIES
+  #   SOVERSION "7"
+  #   FOLDER far
+  # )
 
   install(TARGETS fstfarscript
 	LIBRARY DESTINATION lib

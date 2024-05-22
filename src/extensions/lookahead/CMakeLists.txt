@@ -5,10 +5,10 @@ add_library(fstlookahead
   olabel_lookahead-fst.cc
 )
 target_link_libraries(fstlookahead fst)
-set_target_properties(fstlookahead PROPERTIES 
-  SOVERSION "7"
-  FOLDER lookahead  
-)
+# set_target_properties(fstlookahead PROPERTIES
+#   SOVERSION "7"
+#   FOLDER lookahead
+# )
 
 install(TARGETS fstlookahead 
 	LIBRARY DESTINATION lib

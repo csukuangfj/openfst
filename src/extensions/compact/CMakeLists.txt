@@ -17,10 +17,10 @@ add_library(fstcompact
 )
 
 target_link_libraries(fstcompact fst)
-set_target_properties(fstcompact PROPERTIES 
-  SOVERSION "7"
-  FOLDER compact
-)
+# set_target_properties(fstcompact PROPERTIES
+#   SOVERSION "7"
+#   FOLDER compact
+# )
 
 install(TARGETS fstcompact 
 	        LIBRARY DESTINATION lib

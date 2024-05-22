@@ -1,13 +1,13 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/mpdt/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 if(HAVE_SCRIPT)
   add_library(fstmpdtscript mpdtscript.cc ${HEADER_FILES})
   target_link_libraries(fstmpdtscript fstscript fst)
-  set_target_properties(fstmpdtscript PROPERTIES 
-    SOVERSION "7"
-    FOLDER mpdt
-  )
+  # set_target_properties(fstmpdtscript PROPERTIES
+  #   SOVERSION "7"
+  #   FOLDER mpdt
+  # )
   install(TARGETS fstmpdtscript 
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib

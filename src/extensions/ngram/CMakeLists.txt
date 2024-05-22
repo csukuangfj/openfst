@@ -1,5 +1,5 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/ngram/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 add_library(fstngram
     bitmap-index.cc 
@@ -12,10 +12,10 @@ target_link_libraries(fstngram
     fst
 )
 
-set_target_properties(fstngram PROPERTIES
-    SOVERSION "7"
-    FOLDER ngram
-)
+# set_target_properties(fstngram PROPERTIES
+#     SOVERSION "7"
+#     FOLDER ngram
+# )
 
 install(TARGETS fstngram 
 	LIBRARY DESTINATION lib

@@ -1,13 +1,13 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/pdt/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 if(HAVE_SCRIPT)
   add_library(fstpdtscript getters.cc pdtscript.cc ${HEADER_FILES})
   target_link_libraries(fstpdtscript fstscript fst)
-  set_target_properties(fstpdtscript PROPERTIES 
-    SOVERSION "7"
-    FOLDER pdt
-  )
+  # set_target_properties(fstpdtscript PROPERTIES
+  #   SOVERSION "7"
+  #   FOLDER pdt
+  # )
 
   install(TARGETS fstpdtscript
 	LIBRARY DESTINATION lib

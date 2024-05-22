@@ -1,5 +1,5 @@
 file(GLOB HEADER_FILES ../../include/fst/extensions/linear/*.h)
-message(STATUS "${HEADER_FILES}")
+# message(STATUS "${HEADER_FILES}")
 
 
 if(HAVE_SCRIPT)
@@ -11,10 +11,10 @@ if(HAVE_SCRIPT)
     fstscript
     fst
   )
-  set_target_properties(fstlinearscript PROPERTIES 
-    SOVERSION "7"
-    FOLDER linear
-  )
+  # set_target_properties(fstlinearscript PROPERTIES
+  #   SOVERSION "7"
+  #   FOLDER linear
+  # )
   
   install(TARGETS fstlinearscript
 	LIBRARY DESTINATION lib

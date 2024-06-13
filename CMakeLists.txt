@@ -16,15 +16,9 @@ cmake_minimum_required(VERSION 3.1)
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_CXX_STANDARD 11)
 
-if (WIN32)
-  add_definitions(/bigobj)
-  #set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
-  #this must be disabled unless the previous option (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS) is enabled
-  option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-else()
-  option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-endif (WIN32)
-
+if(BUILD_SHARED_LIBS AND MSVC)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 OPTION(BUILD_USE_SOLUTION_FOLDERS "Enable grouping of projects in VS" ON) 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ${BUILD_USE_SOLUTION_FOLDERS}) 

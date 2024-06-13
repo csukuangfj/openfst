@@ -13,6 +13,12 @@ add_library(fst
   weight.cc
   ${HEADER_FILES}
 )
+
+if(BUILD_SHARED_LIBS)
+  target_compile_definitions(fst PRIVATE FST_BUILD_MAIN_LIB=1)
+  target_compile_definitions(fst PUBLIC FST_BUILD_SHARED_LIBS=1)
+endif()
+
 # set_target_properties(fst PROPERTIES
 #   SOVERSION "6"
 # )

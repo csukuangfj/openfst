@@ -47,12 +47,31 @@ using std::string;
 // using, for example, '--length=2'.
 //
 // ShowUsage() can be used to print out command and flag usage.
+#if defined(_WIN32)
+#if defined(FST_BUILD_SHARED_LIBS)
+#define FST_EXPORT __declspec(dllexport)
+#define FST_IMPORT __declspec(dllimport)
+#else
+#define FST_EXPORT
+#define FST_IMPORT
+#endif
+#else  // WIN32
+#define FST_EXPORT __attribute__((visibility("default")))
 
-#define DECLARE_bool(name) extern bool FLAGS_ ## name
-#define DECLARE_string(name) extern string FLAGS_ ## name
-#define DECLARE_int32(name) extern int32 FLAGS_ ## name
-#define DECLARE_int64(name) extern int64 FLAGS_ ## name
-#define DECLARE_double(name) extern double FLAGS_ ## name
+#define FST_IMPORT FST_EXPORT
+#endif  // WIN32
+
+#if defined(FST_BUILD_MAIN_LIB)
+#define FST_API FST_EXPORT
+#else
+#define FST_API FST_IMPORT
+#endif
+
+#define DECLARE_bool(name) FST_API extern bool FLAGS_ ## name
+#define DECLARE_string(name) FST_API extern string FLAGS_ ## name
+#define DECLARE_int32(name) FST_API extern int32 FLAGS_ ## name
+#define DECLARE_int64(name) FST_API extern int64 FLAGS_ ## name
+#define DECLARE_double(name) FST_API extern double FLAGS_ ## name
 
 template <typename T>
 struct FlagDescription {
@@ -189,7 +208,7 @@ class FlagRegisterer {
 
 
 #define DEFINE_VAR(type, name, value, doc)                                \
-  type FLAGS_ ## name = value;                                            \
+  FST_API type FLAGS_ ## name = value;                                            \
   static FlagRegisterer<type>                                             \
   name ## _flags_registerer(#name, FlagDescription<type>(&FLAGS_ ## name, \
                                                          doc,             \

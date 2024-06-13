@@ -402,7 +402,7 @@ uint64 UnionProperties(uint64 inprops1, uint64 inprops2, bool delayed) {
 }
 
 // Property string names (indexed by bit position).
-const char* PropertyNames[] = {
+FST_API const char* PropertyNames[] = {
     // Binary.
     "expanded", "mutable", "error", "", "", "", "", "", "", "", "", "", "", "",
     "", "",

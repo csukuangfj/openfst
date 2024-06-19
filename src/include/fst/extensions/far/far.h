@@ -229,7 +229,7 @@ class FstFarWriter : public FarWriter<A> {
 
   bool Error() const final { return error_; }
 
-  ~FstFarWriter() final {}
+  ~FstFarWriter() {}
 
  private:
   string filename_;
@@ -269,7 +269,13 @@ class STTableFarReader : public FarReader<A> {
 
   static STTableFarReader *Open(const string &filename) {
     auto *reader = STTableReader<Fst<Arc>, FstReader<Arc>>::Open(filename);
-    if (!reader || reader->Error()) return nullptr;
+    if (!reader || reader->Error()) {
+      if (reader) {
+        delete reader;
+      }
+
+      return nullptr;
+    }
     return new STTableFarReader(reader);
   }
 
@@ -432,7 +438,7 @@ class FstFarReader : public FarReader<A> {
 
   bool Error() const final { return error_; }
 
-  ~FstFarReader() final {
+  ~FstFarReader() {
     for (size_t i = 0; i < keys_.size(); ++i) {
       if (streams_[i] != &std::cin) {
         delete streams_[i];

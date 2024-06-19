@@ -327,13 +327,23 @@ class STListFarReader : public FarReader<A> {
 
   static STListFarReader *Open(const string &filename) {
     auto *reader = STListReader<Fst<Arc>, FstReader<Arc>>::Open(filename);
-    if (!reader || reader->Error()) return nullptr;
+    if (!reader || reader->Error()) {
+      if (reader) {
+        delete reader;
+      }
+      return nullptr;
+    }
     return new STListFarReader(reader);
   }
 
   static STListFarReader *Open(const std::vector<string> &filenames) {
     auto *reader = STListReader<Fst<Arc>, FstReader<Arc>>::Open(filenames);
-    if (!reader || reader->Error()) return nullptr;
+    if (!reader || reader->Error()) {
+      if (reader) {
+        delete reader;
+      }
+      return nullptr;
+    }
     return new STListFarReader(reader);
   }
 

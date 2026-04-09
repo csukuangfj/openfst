@@ -17,5 +17,11 @@
 
 #ifdef _WIN32
 #include <basetsd.h>
+
+// Python 3.8/3.9 on Windows defines ssize_t in pyconfig.h. Avoid redefining it
+// when OpenFst headers are included from Python extension translation units.
+#if !defined(Py_PYCONFIG_H) && !defined(HAVE_SSIZE_T) && \
+    !defined(_SSIZE_T_) && !defined(_SSIZE_T_DEFINED)
 using ssize_t = SSIZE_T;
+#endif
 #endif

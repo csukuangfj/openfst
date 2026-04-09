@@ -30,3 +30,4 @@ obj/
 /CMakeSettings.json
 /*.zip
 src/libfst.log
+build

@@ -255,6 +255,13 @@ if(HAVE_SCRIPT)
       src/script/weight-class.cc
       src/script/verify.cc)
 
+  if(MSVC)
+    set_source_files_properties(
+        src/script/getters.cc
+        PROPERTIES
+          COMPILE_OPTIONS "/Od;/Ob0")
+  endif()
+
   openfst_add_library(
       fstscript
       SOURCES ${OPENFST_SCRIPT_SOURCES}

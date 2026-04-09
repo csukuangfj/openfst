@@ -10,6 +10,7 @@ include(CTest)
 
 if(WIN32)
   option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+  add_compile_options(/bigobj)
 else()
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 endif()

@@ -255,17 +255,19 @@ if(HAVE_SCRIPT)
       src/script/weight-class.cc
       src/script/verify.cc)
 
-  if(MSVC)
-    set_source_files_properties(
-        src/script/getters.cc
-        PROPERTIES
-          COMPILE_OPTIONS "/Od;/Ob0")
-  endif()
-
   openfst_add_library(
       fstscript
       SOURCES ${OPENFST_SCRIPT_SOURCES}
       LINK_LIBRARIES fst)
+
+  if(MSVC)
+    target_compile_options(
+        fstscript
+        PRIVATE
+          $<$<CONFIG:Release>:/Od /Ob0>
+          $<$<CONFIG:RelWithDebInfo>:/Od /Ob0>
+          $<$<CONFIG:MinSizeRel>:/Od /Ob0>)
+  endif()
 endif()
 
 if(HAVE_BIN)

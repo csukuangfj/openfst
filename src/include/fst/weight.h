@@ -151,13 +151,34 @@ inline constexpr uint64_t kPath = 0x0000000000000010ULL;
 // This is also used for a few other weight generation defaults.
 inline constexpr size_t kNumRandomWeights = 5;
 
-// Weight property boolean constants.
+// Weight property boolean constants needed for SFINAE.
+
+// MSVC compiler bug workaround: an expression containing W::Properties()
+// cannot be directly used as a value argument to std::integral_constant.
+// WeightPropertiesThunk<W>::Properties works instead.
+namespace bug {
 
 template <class W>
-using IsIdempotent = std::bool_constant<(W::Properties() & kIdempotent) != 0>;
+struct WeightPropertiesThunk {
+  WeightPropertiesThunk() = delete;
+  inline static constexpr uint64_t Properties = W::Properties();
+};
 
 template <class W>
-using IsPath = std::bool_constant<(W::Properties() & kPath) != 0>;
+using TestWeightProperties = std::bool_constant<
+    (WeightPropertiesThunk<W>::Properties & kIdempotent) == kIdempotent>;
+
+template <class W>
+using TestPathProperties = std::bool_constant<
+    (WeightPropertiesThunk<W>::Properties & kPath) == kPath>;
+
+}  // namespace bug
+
+template <class W>
+using IsIdempotent = bug::TestWeightProperties<W>;
+
+template <class W>
+using IsPath = bug::TestPathProperties<W>;
 
 // Determines direction of division.
 enum DivideType {

@@ -221,7 +221,7 @@ class STTableReader {
   // Constructor arguments, in a separate struct because they're passed
   // both from the factory function and the deprecated constructor.
   struct InitArgs {
-    std::vector<std::unique_ptr<std::ifstream>> streams;
+    std::vector<std::unique_ptr<std::istream>> streams;
     std::vector<std::vector<int64_t>> positions;
   };
 
@@ -303,11 +303,47 @@ class STTableReader {
     }
   }
 
+  // Reads header and index positions from a single stream.
+  static bool PrepareInitArgsOneStream(
+      std::istream* strm, const std::string& source,
+      std::vector<int64_t>* positions) {
+    int32_t magic_number = 0;
+    ReadType(*strm, &magic_number);
+    int32_t file_version = 0;
+    ReadType(*strm, &file_version);
+    if (magic_number != kSTTableMagicNumber) {
+      FSTERROR() << "STTableReader: Wrong file type: " << source
+                 << ", expected " << kSTTableMagicNumber
+                 << ", got " << magic_number;
+      return false;
+    }
+    if (file_version != kSTTableFileVersion) {
+      FSTERROR() << "STTableReader: Wrong file version: " << source
+                 << ", expected " << kSTTableFileVersion
+                 << ", got " << file_version;
+      return false;
+    }
+    int64_t num_entries;
+    strm->seekg(-static_cast<int>(sizeof(int64_t)), std::ios_base::end);
+    ReadType(*strm, &num_entries);
+    if (num_entries > 0) {
+      strm->seekg(
+          -static_cast<int>(sizeof(int64_t)) * (num_entries + 1),
+          std::ios_base::end);
+      positions->resize(num_entries);
+      for (int64_t j = 0; (j < num_entries) && (!strm->fail()); ++j) {
+        ReadType(*strm, &(*positions)[j]);
+      }
+      strm->seekg((*positions)[0]);
+    }
+    return true;
+  }
+
   // Opens the streams, reads the header information, and returns the
   // constructor arguments.
   static ::fst::StatusOr<InitArgs> PrepareInitArgs(
       const std::vector<std::string> &sources) {
-    std::vector<std::unique_ptr<std::ifstream>> streams(sources.size());
+    std::vector<std::unique_ptr<std::istream>> streams(sources.size());
     std::vector<std::vector<int64_t>> positions(sources.size());
     for (size_t i = 0; i < sources.size(); ++i) {
       streams[i] = std::make_unique<std::ifstream>(
@@ -317,41 +353,40 @@ class STTableReader {
         return ::fst::Status(status.code(),
                             fst::StrCat(status.message(), ":", sources[i]));
       }
-      int32_t magic_number = 0;
-      ReadType(*streams[i], &magic_number);
-      int32_t file_version = 0;
-      ReadType(*streams[i], &file_version);
-      if (magic_number != kSTTableMagicNumber) {
+      if (!PrepareInitArgsOneStream(streams[i].get(), sources[i], &positions[i])) {
         return ::fst::InvalidArgumentError(
-            fst::StrCat("Wrong file type: ", sources[i], ", expected ",
-                         kSTTableMagicNumber, ", got ", magic_number));
-      }
-      if (file_version != kSTTableFileVersion) {
-        return ::fst::InvalidArgumentError(
-            fst::StrCat("Wrong file version: ", sources[i], ", expected ",
-                         kSTTableFileVersion, ", got ", file_version));
-      }
-      int64_t num_entries;
-      streams[i]->seekg(-static_cast<int>(sizeof(int64_t)), std::ios_base::end);
-      ReadType(*streams[i], &num_entries);
-      if (num_entries > 0) {
-        streams[i]->seekg(
-            -static_cast<int>(sizeof(int64_t)) * (num_entries + 1),
-            std::ios_base::end);
-        positions[i].resize(num_entries);
-        for (size_t j = 0; (j < num_entries) && (!streams[i]->fail()); ++j) {
-          ReadType(*streams[i], &(positions[i][j]));
-        }
-        streams[i]->seekg(positions[i][0]);
-        if (const ::fst::Status status = GetFileStreamStatus(*streams[i]);
-            !status.ok()) {
-          return ::fst::Status(status.code(),
-                              fst::StrCat(status.message(), ":", sources[i]));
-        }
+            fst::StrCat("Error reading FAR from: ", sources[i]));
       }
     }
     return InitArgs{std::move(streams), std::move(positions)};
   }
+
+  // Opens from existing input streams; returns null on error.
+  static ::fst::StatusOr<std::unique_ptr<STTableReader<T, Reader>>>
+  OpenWithStatus(std::vector<std::unique_ptr<std::istream>> streams) {
+    std::vector<std::string> sources(streams.size());
+    std::vector<std::vector<int64_t>> positions(streams.size());
+    for (size_t i = 0; i < streams.size(); ++i) {
+      sources[i] = "<memory>";
+      if (!PrepareInitArgsOneStream(streams[i].get(), sources[i], &positions[i])) {
+        return ::fst::InvalidArgumentError(
+            fst::StrCat("Error reading FAR from stream"));
+      }
+    }
+    return fst::WrapUnique(
+        new STTableReader<T, Reader>(std::move(sources),
+                                      InitArgs{std::move(streams), std::move(positions)}));
+  }
+
+  // clang-format off
+  [[deprecated("Use OpenWithStatus instead.")]]
+  static STTableReader<T, Reader>* Open(
+      std::vector<std::unique_ptr<std::istream>> streams) {
+    auto reader = OpenWithStatus(std::move(streams));
+    if (!reader.ok()) FSTERROR() << "STTableReader: " << reader.status();
+    return reader.ok() ? reader->release() : nullptr;
+  }
+  // clang-format on
 
   explicit STTableReader(std::vector<std::string>&& sources, InitArgs&& args)
       : sources_(std::move(sources)),
@@ -364,7 +399,7 @@ class STTableReader {
 
   Reader entry_reader_;
   std::vector<std::string> sources_;  // Input file names.
-  std::vector<std::unique_ptr<std::ifstream>>
+  std::vector<std::unique_ptr<std::istream>>
       streams_;                                  // Corresponding input streams.
   std::vector<std::vector<int64_t>> positions_;  // Index of positions.
   std::vector<std::string> keys_;  // Lowest unread key for each stream.

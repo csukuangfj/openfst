@@ -370,7 +370,7 @@ class STTableReader {
       sources[i] = "<memory>";
       if (!PrepareInitArgsOneStream(streams[i].get(), sources[i], &positions[i])) {
         return ::fst::InvalidArgumentError(
-            fst::StrCat("Error reading FAR from stream"));
+            "Error reading FAR from stream");
       }
     }
     return fst::WrapUnique(

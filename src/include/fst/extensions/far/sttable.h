@@ -166,9 +166,36 @@ class STTableReader {
   }
 
   // clang-format off
-  [[deprecated("Use OpenWithStatus instead.")]] 
+  [[deprecated("Use OpenWithStatus instead.")]]
   static STTableReader<T, Reader>* Open(std::vector<std::string> sources) {
     auto reader = OpenWithStatus(std::move(sources));
+    if (!reader.ok()) FSTERROR() << "STTableReader: " << reader.status();
+    return reader.ok() ? reader->release() : nullptr;
+  }
+  // clang-format on
+
+  // Opens from existing input streams; returns null on error.
+  static ::fst::StatusOr<std::unique_ptr<STTableReader<T, Reader>>>
+  OpenWithStatus(std::vector<std::unique_ptr<std::istream>> streams) {
+    std::vector<std::string> sources(streams.size());
+    std::vector<std::vector<int64_t>> positions(streams.size());
+    for (size_t i = 0; i < streams.size(); ++i) {
+      sources[i] = "<memory>";
+      if (!PrepareInitArgsOneStream(streams[i].get(), sources[i], &positions[i])) {
+        return ::fst::InvalidArgumentError(
+            "Error reading FAR from stream");
+      }
+    }
+    return fst::WrapUnique(
+        new STTableReader<T, Reader>(std::move(sources),
+                                      InitArgs{std::move(streams), std::move(positions)}));
+  }
+
+  // clang-format off
+  [[deprecated("Use OpenWithStatus instead.")]]
+  static STTableReader<T, Reader>* Open(
+      std::vector<std::unique_ptr<std::istream>> streams) {
+    auto reader = OpenWithStatus(std::move(streams));
     if (!reader.ok()) FSTERROR() << "STTableReader: " << reader.status();
     return reader.ok() ? reader->release() : nullptr;
   }
@@ -360,33 +387,6 @@ class STTableReader {
     }
     return InitArgs{std::move(streams), std::move(positions)};
   }
-
-  // Opens from existing input streams; returns null on error.
-  static ::fst::StatusOr<std::unique_ptr<STTableReader<T, Reader>>>
-  OpenWithStatus(std::vector<std::unique_ptr<std::istream>> streams) {
-    std::vector<std::string> sources(streams.size());
-    std::vector<std::vector<int64_t>> positions(streams.size());
-    for (size_t i = 0; i < streams.size(); ++i) {
-      sources[i] = "<memory>";
-      if (!PrepareInitArgsOneStream(streams[i].get(), sources[i], &positions[i])) {
-        return ::fst::InvalidArgumentError(
-            "Error reading FAR from stream");
-      }
-    }
-    return fst::WrapUnique(
-        new STTableReader<T, Reader>(std::move(sources),
-                                      InitArgs{std::move(streams), std::move(positions)}));
-  }
-
-  // clang-format off
-  [[deprecated("Use OpenWithStatus instead.")]]
-  static STTableReader<T, Reader>* Open(
-      std::vector<std::unique_ptr<std::istream>> streams) {
-    auto reader = OpenWithStatus(std::move(streams));
-    if (!reader.ok()) FSTERROR() << "STTableReader: " << reader.status();
-    return reader.ok() ? reader->release() : nullptr;
-  }
-  // clang-format on
 
   explicit STTableReader(std::vector<std::string>&& sources, InitArgs&& args)
       : sources_(std::move(sources)),

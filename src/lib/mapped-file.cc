@@ -25,9 +25,6 @@
 #include <new>
 
 #ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
 #include <io.h>         // for _get_osfhandle, _open
 #include <memoryapi.h>  // for CreateFileMapping, UnmapViewOfFile
 #include <windows.h>
@@ -41,7 +38,6 @@
 #include <cstring>
 #include <ios>
 #include <istream>
-#include <limits>
 #include <memory>
 #include <string>
 
@@ -51,7 +47,7 @@ namespace fst {
 
 #ifdef _WIN32
 namespace {
-static constexpr DWORD DWORD_MAX = (std::numeric_limits<DWORD>::max)();
+static constexpr DWORD DWORD_MAX = std::numeric_limits<DWORD>::max();
 }  // namespace
 #endif  // _WIN32
 
@@ -118,7 +114,7 @@ MappedFile*  MappedFile::Map(std::istream& istrm, bool memorymap,
   std::unique_ptr<MappedFile> mf(Allocate(size));
   auto* buffer = static_cast<char*>(mf->mutable_data());
   while (size > 0) {
-    const auto next_size = (std::min)(size, kMaxReadChunk);
+    const auto next_size = std::min(size, kMaxReadChunk);
     const auto current_pos = istrm.tellg();
     if (!istrm.read(buffer, next_size)) {
       LOG(ERROR) << "Failed to read " << next_size << " bytes at offset "

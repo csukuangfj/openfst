@@ -670,7 +670,7 @@ class FstImplBase {
         isymbols_(impl.isymbols_ ? impl.isymbols_->Copy() : nullptr),
         osymbols_(impl.osymbols_ ? impl.osymbols_->Copy() : nullptr) {}
 
-  FstImplBase(FstImplBase&& impl) noexcept = delete;
+  FstImplBase(FstImplBase&& impl) noexcept = default;
 
   virtual ~FstImplBase() = default;
 
@@ -685,7 +685,7 @@ class FstImplBase {
     return *this;
   }
 
-  FstImplBase& operator=(FstImplBase&& impl) noexcept = delete;
+  FstImplBase& operator=(FstImplBase&& impl) noexcept = default;
 
  public:
   const std::string& Type() const { return type_; }
@@ -801,12 +801,12 @@ class FST_LTO_VISIBILITY_PUBLIC FstImpl : public FstImplBase {
 
   FstImpl() = default;
   FstImpl(const FstImpl<Arc>& impl) = default;
-  FstImpl(FstImpl<Arc>&& impl) noexcept = delete;
+  FstImpl(FstImpl<Arc>&& impl) noexcept = default;
 
   ~FstImpl() override = default;
 
   FstImpl& operator=(const FstImpl& impl) = default;
-  FstImpl& operator=(FstImpl&& impl) noexcept = delete;
+  FstImpl& operator=(FstImpl&& impl) noexcept = default;
 
   // Reads header and symbols from input stream, initializes FST, and returns
   // the header. If opts.header is non-null, skips reading and uses the option

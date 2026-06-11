@@ -38,38 +38,6 @@
 
 #include <fst/compat_memory.h>
 
-#ifdef _MSC_VER
-#ifdef __clang__
-#include <x86intrin.h>
-#else
-#include <intrin.h>
-#define __builtin_popcount __popcnt
-
-#ifdef _M_X64
-#define __builtin_popcountll __popcnt64
-inline unsigned int __builtin_ctzll(std::uint64_t w) {
-  unsigned long v;
-  return _BitScanForward64(&v, static_cast<unsigned __int64>(w)) ? v : 0;
-}
-#else
-inline unsigned int __builtin_popcountll(std::uint64_t w) {
-  return __popcnt(static_cast<unsigned int>(w)) +
-         __popcnt(static_cast<unsigned int>(w >> 32));
-}
-inline unsigned int __builtin_ctzll(std::uint64_t w) {
-  unsigned long v;
-  return (_BitScanForward(&v, static_cast<unsigned long>(w))
-              ? v
-              : _BitScanForward(&v, static_cast<unsigned long>(w >> 32))
-                    ? v + 32
-                    : 0);
-}
-#endif  // _M_X64
-#endif  // __clang__
-
-const char* basename(const char* path);
-#endif  // _MSC_VER
-
 namespace fst {
 
 // Downcasting.

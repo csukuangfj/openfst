@@ -19,23 +19,10 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <cstdlib>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
-
-#ifdef _MSC_VER
-const char* basename(const char* path) {
-  char basename_buf[_MAX_FNAME];
-  char ext_buf[_MAX_EXT];
-  static char full_path[_MAX_EXT + _MAX_FNAME];
-
-  _splitpath(path, nullptr, nullptr, basename_buf, ext_buf);
-  _makepath(full_path, nullptr, nullptr, basename_buf, ext_buf);
-  return full_path;
-}
-#endif  // _MSC_VER
 
 namespace fst {
 

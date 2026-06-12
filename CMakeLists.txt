@@ -10,7 +10,9 @@ include(CTest)
 
 if(WIN32)
   option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-  add_compile_options(/bigobj)
+  if(MSVC)
+    add_compile_options(/bigobj)
+  endif()
 else()
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 endif()
@@ -86,8 +88,13 @@ set(OPENFST_MODULE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/fst" CACHE PATH
 set(OPENFST_PUBLIC_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/include")
 set(OPENFST_SOURCE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
+if(WIN32 AND MINGW)
+  # MinGW's <cmath> does not expose C math constants like M_LN2 by default.
+  add_compile_definitions(M_LN2=0.69314718055994530942)
+endif()
+
 set(OPENFST_SYSTEM_LIBS "")
-if(NOT WIN32)
+if(NOT WIN32 OR MINGW)
   list(APPEND OPENFST_SYSTEM_LIBS m)
 endif()
 if(CMAKE_DL_LIBS)
@@ -114,7 +121,16 @@ function(openfst_configure_target target)
 
   if(WIN32)
     target_compile_definitions(${target} PUBLIC FST_NO_DYNAMIC_LINKING)
-    target_compile_options(${target} PRIVATE /bigobj)
+    if(MSVC)
+      target_compile_options(${target} PRIVATE /bigobj)
+    else()
+      target_compile_options(
+          ${target}
+          PRIVATE
+            -fno-exceptions
+            -Wno-deprecated-declarations
+            -Wno-sign-compare)
+    endif()
   else()
     target_compile_options(
         ${target}

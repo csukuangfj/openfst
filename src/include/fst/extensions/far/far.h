@@ -272,22 +272,26 @@ class STTableFarReader : public FarReader<A> {
 
   static ::fst::StatusOr<std::unique_ptr<STTableFarReader>> OpenWithStatus(
       std::string_view source) {
-    auto reader =
-        fst::WrapUnique(STTableReader<Fst<Arc>, FstReader<Arc>>::Open(source));
+    auto status_or_reader =
+        STTableReader<Fst<Arc>, FstReader<Arc>>::OpenWithStatus(source);
+    if (!status_or_reader.ok()) return status_or_reader.status();
+    auto reader = std::move(*status_or_reader);
     if (!reader || reader->Error()) return nullptr;
     return fst::WrapUnique(new STTableFarReader(std::move(reader)));
   }
 
   static STTableFarReader* Open(std::string_view source) {
-    auto reader =
-        fst::WrapUnique(STTableReader<Fst<Arc>, FstReader<Arc>>::Open(source));
-    if (!reader || reader->Error()) return nullptr;
-    return new STTableFarReader(std::move(reader));
+    auto reader = OpenWithStatus(source);
+    if (!reader.ok()) return nullptr;
+    return reader->release();
   }
 
   static STTableFarReader* Open(std::vector<std::string> sources) {
-    auto reader = fst::WrapUnique(
-        STTableReader<Fst<Arc>, FstReader<Arc>>::Open(std::move(sources)));
+    auto status_or_reader =
+        STTableReader<Fst<Arc>, FstReader<Arc>>::OpenWithStatus(
+            std::move(sources));
+    if (!status_or_reader.ok()) return nullptr;
+    auto reader = std::move(*status_or_reader);
     if (!reader || reader->Error()) return nullptr;
     return new STTableFarReader(std::move(reader));
   }
@@ -295,8 +299,11 @@ class STTableFarReader : public FarReader<A> {
   static STTableFarReader* Open(std::unique_ptr<std::istream> stream) {
     std::vector<std::unique_ptr<std::istream>> streams;
     streams.push_back(std::move(stream));
-    auto reader = fst::WrapUnique(
-        STTableReader<Fst<Arc>, FstReader<Arc>>::Open(std::move(streams)));
+    auto status_or_reader =
+        STTableReader<Fst<Arc>, FstReader<Arc>>::OpenWithStatus(
+            std::move(streams));
+    if (!status_or_reader.ok()) return nullptr;
+    auto reader = std::move(*status_or_reader);
     if (!reader || reader->Error()) return nullptr;
     return new STTableFarReader(std::move(reader));
   }

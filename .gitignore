@@ -31,3 +31,4 @@ obj/
 /*.zip
 src/libfst.log
 build
+build-test

@@ -730,7 +730,7 @@ void Compressor<Arc>::WriteToStream(std::ostream& strm) {
     } else {
       block = block << 1;
     }
-    block |= *it;
+    block |= static_cast<uint8_t>(*it);
     ++i;
   }
   WriteType(strm, block);

@@ -1,0 +1,61 @@
+name: windows-x86
+
+on:
+  push:
+    branches:
+      - winport
+      - openfst-1.8.5
+      - fix-win
+
+  pull_request:
+    branches:
+      - winport
+      - openfst-1.8.5
+
+  workflow_dispatch:
+
+concurrency:
+  group: windows-x86-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows_x86:
+    name: Windows x86 (${{ matrix.build_type }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake --version
+
+          cmake -S. -Bbuild -A Win32 \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_INSTALL_PREFIX="$PWD/build/install"
+
+      - name: Build openfst for Windows x86
+        shell: bash
+        run: |
+          cmake --build build --config ${{ matrix.build_type }} -- -m
+          cmake --build build --config ${{ matrix.build_type }} --target install -- -m
+
+      - name: Run tests
+        shell: bash
+        run: |
+          cd build
+          ctest -C ${{ matrix.build_type }} --output-on-failure
+
+      - name: Verify install
+        shell: bash
+        run: |
+          ls -lh build/install/bin/fstinfo.exe

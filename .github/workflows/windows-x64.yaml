@@ -3,11 +3,14 @@ name: windows-x64
 on:
   push:
     branches:
-      - master
+      - winport
+      - openfst-1.8.5
+      - fix-win
 
   pull_request:
     branches:
-      - master
+      - winport
+      - openfst-1.8.5
 
   workflow_dispatch:
 
@@ -37,7 +40,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=./install ..
+          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build openfst for Windows x64
         shell: bash
@@ -46,4 +49,13 @@ jobs:
           cmake --build . --config ${{ matrix.build_type }} -- -m
           cmake --build . --config ${{ matrix.build_type }} --target install -- -m
 
-          ls -lh ./bin/Release/sherpa-onnx.exe
+      - name: Run tests
+        shell: bash
+        run: |
+          cd build
+          ctest -C ${{ matrix.build_type }} --output-on-failure
+
+      - name: Verify install
+        shell: bash
+        run: |
+          ls -lh build/install/bin/fstinfo.exe

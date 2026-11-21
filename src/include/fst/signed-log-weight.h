@@ -129,7 +129,7 @@ inline SignedLogWeightTpl<T> Plus(const SignedLogWeightTpl<T>& w1,
     return w1;
   } else if (f1 == f2) {
     if (equal) {
-      return SignedLogWeightTpl<T>(W1(w1.Value1()), W2(f2 - M_LN2));
+      return SignedLogWeightTpl<T>(W1(w1.Value1()), W2(f2 - std::log(2.0)));
     } else {
       return SignedLogWeightTpl<T>::Zero();
     }

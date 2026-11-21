@@ -115,11 +115,11 @@ int fstprint_main(int argc, char** argv) {
            FST_FLAGS_missing_symbol);
 
   if (isyms && !FST_FLAGS_save_isymbols.empty()) {
-    if (!isyms->WriteText(FST_FLAGS_save_isymbols)) return 1;
+    if (!isyms->WriteTextWithStatus(FST_FLAGS_save_isymbols).ok()) return 1;
   }
 
   if (osyms && !FST_FLAGS_save_osymbols.empty()) {
-    if (!osyms->WriteText(FST_FLAGS_save_osymbols)) return 1;
+    if (!osyms->WriteTextWithStatus(FST_FLAGS_save_osymbols).ok()) return 1;
   }
 
   return 0;

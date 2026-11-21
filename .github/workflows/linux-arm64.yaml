@@ -1,0 +1,70 @@
+name: linux-arm64
+
+on:
+  push:
+    branches:
+      - winport
+      - openfst-1.8.5
+      - fix-win
+
+  pull_request:
+    branches:
+      - winport
+      - openfst-1.8.5
+
+  workflow_dispatch:
+
+concurrency:
+  group: linux-arm64-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux_arm64:
+    name: Linux arm64 (${{ matrix.build_type }}, ${{ matrix.lib_type }})
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+        lib_type: [static, shared]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: linux-arm64-${{ matrix.build_type }}-${{ matrix.lib_type }}
+
+      - name: Configure CMake
+        run: |
+          cmake --version
+          g++ --version
+
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:$PATH"
+
+          cmake -S. -Bbuild -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_SHARED_LIBS=${{ matrix.lib_type == 'shared' && 'ON' || 'OFF' }} \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_INSTALL_PREFIX="$PWD/build/install"
+
+      - name: Build openfst for Linux arm64
+        run: |
+          cmake --build build --parallel
+          cmake --build build --target install
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      - name: Verify install
+        run: |
+          ls -lh build/install/bin/fstinfo
+
+      - name: Show ccache stats
+        run: ccache -s

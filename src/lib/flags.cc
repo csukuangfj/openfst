@@ -28,7 +28,18 @@
 
 #include <fst/log.h>
 
-static const char* private_tmpdir = getenv("TMPDIR");
+// Returns the temporary directory: $TMPDIR on POSIX, %TEMP% or %TMP% on
+// Windows, and /tmp as the last resort.
+static const char* GetDefaultTmpDir() {
+  const char* tmpdir = getenv("TMPDIR");
+#ifdef _WIN32
+  if (!tmpdir) tmpdir = getenv("TEMP");
+  if (!tmpdir) tmpdir = getenv("TMP");
+#endif
+  return tmpdir ? tmpdir : "/tmp";
+}
+
+static const char* private_tmpdir = GetDefaultTmpDir();
 
 DEFINE_int32(v, 0, "verbosity level");
 DEFINE_bool(help, false, "show usage information");

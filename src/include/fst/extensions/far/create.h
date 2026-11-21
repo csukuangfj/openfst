@@ -20,7 +20,10 @@
 #ifndef FST_EXTENSIONS_FAR_CREATE_H_
 #define FST_EXTENSIONS_FAR_CREATE_H_
 
+#include <fst/compat.h>
+#ifndef _MSC_VER
 #include <libgen.h>
+#endif
 
 #include <cstddef>
 #include <cstdint>

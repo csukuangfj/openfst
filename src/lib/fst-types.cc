@@ -26,6 +26,11 @@
 
 namespace fst {
 
+// Referenced by FstRegister<Arc>::GetReader()/GetConverter() (see
+// fst/register.h) so static linkers cannot discard this translation unit
+// and its static initializers register the core FST types.
+void FstRegisterAnchor() {}
+
 REGISTER_FST(VectorFst, StdArc);
 REGISTER_FST(VectorFst, LogArc);
 REGISTER_FST(VectorFst, Log64Arc);

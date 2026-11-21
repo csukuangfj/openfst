@@ -54,6 +54,11 @@ struct FstRegisterEntry {
       : reader(reader), converter(converter) {}
 };
 
+// Defined in fst-types.cc. Referencing this from the registry lookup path
+// prevents static linkers from discarding fst-types.cc, whose static
+// initializers register the core FST types (MSVC /OPT:REF, GNU ld).
+void FstRegisterAnchor();
+
 // This class maintains the correspondence between a string describing
 // an FST type, and its reader and converter.
 template <class Arc>
@@ -64,10 +69,12 @@ class FstRegister : public GenericRegister<std::string, FstRegisterEntry<Arc>,
   using Converter = typename FstRegisterEntry<Arc>::Converter;
 
   const Reader GetReader(std::string_view type) const {
+    FstRegisterAnchor();
     return this->GetEntry(type).reader;
   }
 
   const Converter GetConverter(std::string_view type) const {
+    FstRegisterAnchor();
     return this->GetEntry(type).converter;
   }
 

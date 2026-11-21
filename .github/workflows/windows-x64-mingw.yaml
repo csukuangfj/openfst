@@ -53,12 +53,19 @@ jobs:
 
           cmake -S. -Bbuild -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_TESTING=ON \
             -DCMAKE_INSTALL_PREFIX="$PWD/build/install"
 
       - name: Build openfst for Windows x64 (MinGW)
         run: |
           cmake --build build --parallel
           cmake --build build --target install
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
 
       - name: Verify install
         run: |

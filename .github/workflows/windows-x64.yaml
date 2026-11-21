@@ -40,7 +40,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=./install ..
+          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=./install ..
 
       - name: Build openfst for Windows x64
         shell: bash

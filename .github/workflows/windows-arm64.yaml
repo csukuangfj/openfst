@@ -39,6 +39,7 @@ jobs:
 
           cmake -S. -Bbuild -A ARM64 \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_SHARED_LIBS=OFF \
             -DBUILD_TESTING=ON \
             -DCMAKE_INSTALL_PREFIX="$PWD/build/install"
 

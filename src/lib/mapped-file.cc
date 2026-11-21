@@ -96,7 +96,12 @@ MappedFile*  MappedFile::Map(std::istream& istrm, bool memorymap,
 #endif
     if (fd != -1) {
       std::unique_ptr<MappedFile> mmf(MapFromFileDescriptor(fd, pos, size));
-      if (close(fd) == 0 && mmf != nullptr) {
+#ifdef _WIN32
+      const bool closed = (_close(fd) == 0);
+#else
+      const bool closed = (close(fd) == 0);
+#endif
+      if (closed && mmf != nullptr) {
         istrm.seekg(pos + size, std::ios::beg);
         if (istrm) {
           VLOG(2) << "mmap'ed region of " << size << " at offset " << pos

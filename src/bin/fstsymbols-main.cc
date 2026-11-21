@@ -72,7 +72,7 @@ int fstsymbols_main(int argc, char** argv) {
   if (!FST_FLAGS_save_isymbols.empty()) {
     const auto* isyms = fst->InputSymbols();
     if (isyms) {
-      isyms->WriteText(FST_FLAGS_save_isymbols);
+      isyms->WriteTextWithStatus(FST_FLAGS_save_isymbols);
     } else {
       LOG(ERROR) << argv[0]
                  << ": Saving isymbols but there are no input symbols.";
@@ -82,7 +82,7 @@ int fstsymbols_main(int argc, char** argv) {
   if (!FST_FLAGS_save_osymbols.empty()) {
     const auto* osyms = fst->OutputSymbols();
     if (osyms) {
-      osyms->WriteText(FST_FLAGS_save_osymbols);
+      osyms->WriteTextWithStatus(FST_FLAGS_save_osymbols);
     } else {
       LOG(ERROR) << argv[0]
                  << ": Saving osymbols but there are no output symbols.";

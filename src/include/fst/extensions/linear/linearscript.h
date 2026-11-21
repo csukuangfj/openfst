@@ -346,9 +346,9 @@ void LinearCompileTpl(LinearCompileArgs* args) {
     fst.Write(out);
   }
 
-  if (!save_isymbols.empty()) isyms.WriteText(save_isymbols);
-  if (!save_fsymbols.empty()) fsyms.WriteText(save_fsymbols);
-  if (!save_osymbols.empty()) osyms.WriteText(save_osymbols);
+  if (!save_isymbols.empty()) isyms.WriteTextWithStatus(save_isymbols);
+  if (!save_fsymbols.empty()) fsyms.WriteTextWithStatus(save_fsymbols);
+  if (!save_osymbols.empty()) osyms.WriteTextWithStatus(save_osymbols);
 }
 
 void LinearCompile(const std::string& arc_type,

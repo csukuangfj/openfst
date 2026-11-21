@@ -5,6 +5,7 @@ on:
     branches:
       - winport
       - openfst-1.8.5
+      - fix-win
 
   pull_request:
     branches:
@@ -19,12 +20,19 @@ concurrency:
 
 jobs:
   macos:
-    name: macOS (${{ matrix.build_type }})
+    name: macOS (${{ matrix.arch }}, ${{ matrix.build_type }})
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
         build_type: [Release]
+        include:
+          - arch: x86_64
+            osx_arch: x86_64
+          - arch: arm64
+            osx_arch: arm64
+          - arch: universal2
+            osx_arch: x86_64;arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -38,13 +46,21 @@ jobs:
 
           cmake -S. -Bbuild -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.osx_arch }}" \
             -DCMAKE_INSTALL_PREFIX="$PWD/build/install"
 
-      - name: Build openfst for macOS
+      - name: Build openfst for macOS ${{ matrix.arch }}
         run: |
           cmake --build build --parallel
           cmake --build build --target install
 
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
       - name: Verify install
         run: |
           ls -lh build/install/bin/fstinfo
+          file build/install/bin/fstinfo

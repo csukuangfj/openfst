@@ -25,6 +25,7 @@
 #include <arm_neon.h>
 #endif
 
+#include <fst/compat.h>
 #include <fst/log.h>
 
 #if defined(__BMI2__)  // Intel Bit Manipulation Instruction Set 2

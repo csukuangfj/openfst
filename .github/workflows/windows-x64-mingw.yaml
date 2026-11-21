@@ -5,6 +5,7 @@ on:
     branches:
       - winport
       - openfst-1.8.5
+      - fix-win
 
   pull_request:
     branches:

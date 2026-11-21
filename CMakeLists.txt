@@ -12,6 +12,11 @@ if(WIN32)
   option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
   if(MSVC)
     add_compile_options(/bigobj)
+    # Upstream OpenFst template code triggers benign MSVC conversion warnings
+    # (size_t -> int32_t, double -> float, placement-new without matching
+    # operator delete). Silence them to keep the build log clean.
+    add_compile_options(/wd4018 /wd4146 /wd4244 /wd4267 /wd4291 /wd4305 /wd4838)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
   endif()
 else()
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
